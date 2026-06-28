@@ -18,6 +18,9 @@ CSRF_TRUSTED_ORIGINS=https://web-production-6b6b2.up.railway.app
 EMAIL_HOST_USER=<gmail-sender-address>
 EMAIL_HOST_PASSWORD=<gmail-app-password>
 CONTACT_RECEIVER_EMAIL=<admin-receiver-address>
+ADMIN_USERNAME=<admin-login-username>
+ADMIN_PASSWORD=<admin-login-password>
+ADMIN_EMAIL=<admin-email-address>
 ```
 
 For MySQL, add these variables:
@@ -51,7 +54,7 @@ pip install -r requirements.txt && python manage.py collectstatic --noinput && p
 ## Start command
 
 ```bash
-python manage.py migrate --noinput && gunicorn studentproject.wsgi:application --bind 0.0.0.0:$PORT
+python manage.py migrate --noinput && python manage.py ensure_admin && gunicorn studentproject.wsgi:application --bind 0.0.0.0:$PORT
 ```
 
 The `Procfile` already contains this start command for platforms that detect it automatically.
