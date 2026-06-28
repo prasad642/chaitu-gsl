@@ -55,6 +55,9 @@ python manage.py migrate --noinput && gunicorn studentproject.wsgi:application -
 ```
 
 The `Procfile` already contains this start command for platforms that detect it automatically.
+The same command is also set in `railway.json`. If Railway still runs plain
+Gunicorn, clear any custom Start Command in the Railway dashboard or set it to
+the command above.
 
 ## Important storage note
 
