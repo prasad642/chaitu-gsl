@@ -27,12 +27,14 @@ SECRET_KEY = os.environ.get(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+# DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
-    if host.strip()
+ALLOWED_HOSTS = ["web-production-6b6b2.up.railway.app",
+    "localhost",
+    "127.0.0.1",
+    # host.strip()
+    # for host in os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+    # if host.strip()
 ]
 
 
@@ -193,3 +195,8 @@ if not DEBUG:
         'False',
     ).lower() == 'true'
     SECURE_HSTS_PRELOAD = os.environ.get('SECURE_HSTS_PRELOAD', 'False').lower() == 'true'
+DEBUG = False
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://web-production-6b6b2.up.railway.app",
+]
