@@ -1,0 +1,138 @@
+{% extends 'students/base.html' %}
+{% load static %}
+
+{% block title %}Incendios | Events{% endblock %}
+
+{% block content %}
+<section class="events-page">
+    <div class="container page-container">
+        <header class="page-heading">
+            <h1>Explore Our Events</h1>
+            <p>Stay updated with cultural, scientific, and sports activities.</p>
+        </header>
+
+        <div class="row g-4">
+            {% for section in event_sections %}
+            <div class="col-lg-4 col-md-6">
+                <article class="event-box">
+                    <header class="event-box-header {{ section.style }} event-banner-header">
+                        <img src="{% static 'students/images/' %}banner{{ forloop.counter }}.jpg" alt="{{ section.title }}">
+                    </header>
+
+                    <div class="event-scroll-area">
+                        {% for event in section.events %}
+                        <article class="event-card">
+                            {% if event.image %}
+                            <img src="{{ event.image.url }}" class="event-image" alt="{{ event.title }}">
+                            {% else %}
+                            <img src="{% static 'students/images/incend_logo.png' %}" class="event-image" alt="{{ event.title }}">
+                            {% endif %}
+
+                            <div class="event-info">
+                                <h3>{{ event.title }}</h3>
+                                <p class="event-date">{{ event.date|date:"M d, Y" }}{% if event.time %} at {{ event.time|time:"h:i A" }}{% endif %}</p>
+                                {% if event.venue %}<p class="event-venue">{{ event.venue }}</p>{% endif %}
+                                <p>{{ event.description }}</p>
+                                {% if event.drive_link %}
+                                <a class="event-drive-link" href="{{ event.drive_link }}" target="_blank" rel="noopener noreferrer">
+                                    <i class="bi bi-images"></i>
+                                    View photos
+                                </a>
+                                {% endif %}
+                                {% if event.can_register %}
+                                    <a class="btn btn-warning btn-sm fw-bold mt-2"
+                                    href="{% url 'event_registration' %}?event_id={{ event.id }}">
+                                        Register
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-secondary btn-sm mt-2" disabled>
+                                        Registration Closed
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </article>
+                        {% empty %}
+                        <p class="empty-list">No events added yet.</p>
+                        {% endfor %}
+                    </div>
+                </article>
+            </div>
+            {% endfor %}
+        </div>
+
+        <section class="event-photos-section">
+            <header class="section-heading">
+                <h2>Event Photos</h2>
+                <p>Thanks for the memories.</p>
+            </header>
+            <div class="row g-4">
+                {% for photo in photos %}
+                    <div class="col-md-4 mb-4 col-6">
+                        <div class="event-photo-card">
+                            <img src="{{ photo.photo.url }}" alt="{% if photo.event %}{{ photo.event.title }}{% else %}Event photo{% endif %}">
+                            <div>
+                                <h3>{% if photo.event %}{{ photo.event.title }}{% else %}Event Photo{% endif %}</h3>
+                                {% if photo.event and photo.event.description %}
+                                    <p>{{ photo.event.description|truncatewords:18 }}</p>
+                                {% endif %}
+                                {% if photo.drive_link or photo.event.drive_link %}
+                                    <a href="{% if photo.drive_link %}{{ photo.drive_link }}{% else %}{{ photo.event.drive_link }}{% endif %}" target="_blank" rel="noopener noreferrer">
+                                        <i class="bi bi-images"></i>
+                                        View in Drive
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No photos available.</p>
+                {% endfor %}
+            </div>
+           
+        </section>
+    </div>
+
+    <section class="score-table-section">
+        <div class="container page-container">
+            <header class="section-heading">
+                <h2>Inter Batch cultural Tally</h2>
+                <a class="btn btn-warning fw-bold" href="{% url 'export_excel' %}">
+                    <i class="bi bi-download"></i>
+                    Export Excel
+                </a>
+            </header>
+
+            <div class="score-table-wrap">
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Batch</th>
+                            {% for comp in competitions %}
+                            <th>{{ comp.name }}</th>
+                            {% endfor %}
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in table_rows %}
+                        <tr>
+                            <td>{{ row.rank }}</td>
+                            <td>{{ row.batch.name }}</td>
+                            {% for score in row.scores %}
+                            <td>{{ score }}</td>
+                            {% endfor %}
+                            <td>{{ row.total }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="{{ competitions|length|add:3 }}">No scores added yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</section>
+{% endblock %}

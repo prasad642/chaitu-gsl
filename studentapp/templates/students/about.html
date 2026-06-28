@@ -1,0 +1,47 @@
+{% extends 'students/base.html' %}
+{% load static %}
+
+{% block title %}Incendios | About Us{% endblock %}
+
+{% block content %}
+<section class="about-page">
+    <div class="about-blueprint-wrap">
+        <div class="about-hero-image-wrap">
+            <img src="{% static 'students/images/homepage-second-carousel-5.jpg' %}" alt="Incendios student council moment" class="about-hero-image">
+        </div>
+
+        <article class="about-mission-card">
+            <h1>WHO WE ARE &amp; OUR MISSION</h1>
+
+            <div class="about-mission-columns">
+                <section>
+                    <h2>Who We Are</h2>
+                    <p>Welcome to the official portal of the GSL Medical College Student Council, proudly led by the MBBS Batch of 2022 - <strong class="about-highlight">Incendios.</strong></p>
+                    <p>From the moment we entered the gates of GSL, we chose a name that defined our collective energy: Incendios. Over the years, that fire has not just burned; it has illuminated our journey. Since our first year, we have actively participated in campus life, learning from difficulties and engaging in healthy inter-batch competitions. Through these events, we have been fortunate enough to secure numerous victories, foster a spirit of camaraderie, and build a lasting legacy of excellence in both cultural and academic arenas.</p>
+                </section>
+
+                <section>
+                    <h2>Our Transition</h2>
+                    <h3>From Participants to Leaders</h3>
+                    <p>As we step into our final year, our focus has naturally evolved. The same passion that drove us to excel in college events is now dedicated to serving the campus community. As the elected Student Council, the energy of Incendios is now channeled toward a greater purpose: advocating for and supporting every single student across all batches at GSL Medical College.</p>
+                </section>
+
+                <section>
+                    <h2>Our Mission</h2>
+                    <p>We aim to bridge the gap between the student body and the administration effectively. Whether addressing academic hurdles, coordinating clinical postings, ensuring campus welfare, or organizing major institutional events, the Council stands as a reliable, collaborative problem-solving hub.</p>
+                    <p>Unity: Serving as a cohesive, supportive voice for every batch on campus.</p>
+                    <p>Resolution: Addressing campus and academic grievances swiftly, professionally, and effectively.</p>
+                    <p>Legacy: Working together to leave GSL Medical College even more vibrant, collaborative, and united than we found it.</p>
+                    
+                </section>
+                
+            </div>
+            <p class="about-closing">"Born as a spark in 2022, leading with dedication today. <br>We are here for you." <span>- Incendios.</span></p>
+        </article>
+
+        <footer class="about-blueprint-footer">
+            <span>GSL Medical College &copy; 2024</span>
+        </footer>
+    </div>
+</section>
+{% endblock %}

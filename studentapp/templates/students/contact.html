@@ -1,0 +1,229 @@
+{% extends 'students/base.html' %}
+{% load static %}
+
+
+
+{% block title %}Incendios | Contact Us{% endblock %}
+
+{% block content %}
+<style>
+    .contact-page-bg {
+        background-image: url('{% static "students/images/contact-bg.jpeg" %}');
+        background-size: cover;
+        padding: 3rem 0 3.5rem;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    @media (max-width: 480px) {
+        .contact-page-bg {
+            margin-top: -1rem; /* Fully absorbs the header's mb-2 margin */
+            padding-top: 4rem; /* Compensates for the negative margin */
+            min-height: 100vh; /* Guarantees the background stretches to the footer */
+            margin-bottom: -1rem; /* Ensures seamless connection to the footer */
+        }
+    }
+</style>
+<section class="contact-page contact-page-bg">
+    <div class="container page-container">
+        <div class="page-heading">
+            <h1>Contact Us</h1>
+            <p>Verify your email with OTP before submitting a message.</p>
+        </div>
+
+        <div class="contact-panel">
+            {% if success and not email_warning %}<div class="alert alert-success">Message submitted successfully.</div>{% endif %}
+            {% if otp_sent %}<div class="alert alert-success">OTP sent to {{ otp_email }}.</div>{% endif %}
+            {% if email_warning %}<div class="alert alert-warning">{{ email_warning }}</div>{% endif %}
+            {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+            <form method="post" class="contact-step" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="send_otp">
+
+                <div class="mb-3">
+                    <label for="otp_name" class="form-label">Name</label>
+                    <input type="text" class="form-control form-control-dark form-style" id="otp_name" name="name" value="{{ contact_name }}" placeholder="Your name" autocomplete="off" {% if otp_verified %}readonly{% endif %}>
+                </div>
+
+                <div class="mb-3">
+                    <label for="otp_email" class="form-label">Email address</label>
+                    <div class="input-group">
+                        <input type="email" class="form-control form-control-dark" id="otp_email" name="email" value="{{ otp_email }}" placeholder="you@example.com" required autocomplete="off" {% if otp_verified %}readonly{% endif %}>
+                        <button type="submit" class="btn btn-outline-warning" id="sendOtpButton" data-otp-sent="{% if otp_sent %}true{% else %}false{% endif %}" {% if otp_verified %}disabled{% endif %}>
+                            <span class="otp-button-text">Send OTP</span>
+                        </button>
+                    </div>
+                    <p class="otp-timer" id="otpTimer" aria-live="polite"></p>
+                </div>
+            </form>
+
+            <form method="post" class="contact-step" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="verify_otp">
+                <input type="hidden" name="name" value="{{ contact_name }}">
+                <input type="hidden" name="email" value="{{ otp_email }}">
+
+                <div class="mb-3">
+                    <label for="otp" class="form-label">Enter OTP</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control form-control-dark" id="otp" name="otp" placeholder="6-digit OTP" minlength="6" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" required autocomplete="off" {% if not otp_pending %}disabled{% endif %}>
+                        <button type="submit" class="btn btn-outline-warning" id="verifyOtpButton" data-otp-pending="{% if otp_pending %}true{% else %}false{% endif %}" {% if not otp_pending %}disabled{% endif %}>
+                            <span class="verify-button-text">
+                                {% if otp_verified %}Verified ✓{% elif not otp_pending %}Send OTP first{% else %}Verify OTP{% endif %}
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <form method="post" id="contactForm">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="submit">
+                <input type="hidden" name="name" value="{{ contact_name }}">
+                <input type="hidden" name="email" value="{{ otp_email }}">
+                {% if submit_token %}
+                <input type="hidden" name="submit_token" value="{{ submit_token }}">
+                {% endif %}
+
+                <div class="mb-3">
+                    <label for="message" class="form-label">Message</label>
+                    <textarea class="form-control form-control-dark" id="message" name="message" rows="5" placeholder="Your feedback or query..." required autocomplete="off"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-warning w-100 fw-bold" {% if not otp_verified %}disabled{% endif %}>Submit</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% if popup_message %}
+<div class="modal fade" id="contactPopup" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-warning">
+            <div class="modal-header border-secondary">
+                <h2 class="modal-title h5">Contact Us</h2>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">{{ popup_message }}</div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{ popup_message|json_script:"contact-popup-message" }}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if popup_message %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const popupElement = document.getElementById('contactPopup');
+    const popupMessageElement = document.getElementById('contact-popup-message');
+    const popupMessage = popupMessageElement ? JSON.parse(popupMessageElement.textContent) : '';
+
+    if (popupElement && window.bootstrap) {
+        new bootstrap.Modal(popupElement).show();
+    } else if (popupMessage) {
+        window.alert(popupMessage);
+    }
+});
+</script>
+{% endif %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const sendButton = document.getElementById('sendOtpButton');
+    const sendText = sendButton ? sendButton.querySelector('.otp-button-text') : null;
+    const timerText = document.getElementById('otpTimer');
+
+    const verifyButton = document.getElementById('verifyOtpButton');
+    const verifyText = verifyButton ? verifyButton.querySelector('.verify-button-text') : null;
+
+    const storageKey = 'incendiosContactOtpUntil';
+    const clearStorage = "{{ clear_local_storage|yesno:'true,false' }}" === "true";
+    const otpVerified = "{{ otp_verified|yesno:'true,false' }}" === "true";
+    const otpSent = sendButton && sendButton.dataset.otpSent === 'true';
+
+    if (clearStorage) {
+        localStorage.removeItem(storageKey);
+    }
+
+    if (otpVerified) {
+        let isSubmitting = false;
+
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function() {
+                isSubmitting = true;
+            });
+        }
+
+        window.addEventListener('beforeunload', function (e) {
+            if (isSubmitting) return;
+            e.preventDefault();
+            e.returnValue = '';
+        });
+        return; // No timer needed if already verified
+    }
+
+    if (!sendButton || !timerText) return;
+
+    const now = Date.now();
+    let until = parseInt(localStorage.getItem(storageKey) || '0', 10);
+
+    // Only (re)start the timer when a fresh OTP was just sent — aligned to server's 120s expiry
+    if (otpSent && (!until || until <= now)) {
+        until = now + 120000; // 120 seconds — matches server-side OTP expiry exactly
+        localStorage.setItem(storageKey, String(until));
+    }
+
+    function renderTimer() {
+        const remaining = Math.max(0, Math.ceil((until - Date.now()) / 1000));
+
+        if (remaining > 0) {
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+            const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            sendButton.disabled = true;
+            if (sendText) sendText.textContent = `Send OTP (${timeStr})`;
+            // Show time-left message below the email field only — not in the verify button
+            timerText.textContent = `OTP is valid for another ${timeStr}. Check your email and verify below.`;
+
+            if (verifyButton) {
+                verifyButton.disabled = false;
+            }
+            // Use data attribute instead of fragile text comparison
+            const otpPendingServerState = verifyButton && verifyButton.dataset.otpPending === 'true';
+            if (verifyText && !otpPendingServerState) {
+                verifyText.textContent = 'Verify OTP';
+            }
+
+            window.setTimeout(renderTimer, 1000);
+            return;
+        }
+
+        // Timer expired
+        sendButton.disabled = false;
+        if (sendText) sendText.textContent = 'Send OTP';
+        timerText.textContent = 'OTP has expired. Please click "Send OTP" to get a new one.';
+
+        // Disable verify button when OTP has expired — no jarring alert popup
+        if (verifyButton) {
+            verifyButton.disabled = true;
+        }
+        if (verifyText) {
+            verifyText.textContent = 'OTP Expired';
+        }
+
+        localStorage.removeItem(storageKey);
+    }
+
+    if (until > now) {
+        renderTimer();
+    }
+});
+</script>
+{% endblock %}

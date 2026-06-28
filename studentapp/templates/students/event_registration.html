@@ -1,0 +1,186 @@
+{% extends 'students/base.html' %}
+
+{% block title %}Incendios | Event Registration{% endblock %}
+
+{% block content %}
+<section class="contact-page event-registration-page">
+    <div class="container page-container">
+        <header class="page-heading">
+            <h1>Event Registration</h1>
+            <p>Register for upcoming events approved by admin.</p>
+        </header>
+
+        <div class="contact-panel">
+            {% if success %}<div class="alert alert-success">Registration successfull.</div>{% endif %}
+            {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="event_id" class="form-label">Select Event</label>
+                    <select class="form-select form-control-dark" name="event_id" id="event_id" required> 
+                        <option value="">Choose event</option>
+                        {% for event in events %}
+                        <option value="{{ event.id }}" {% if selected_event_id == event.id|stringformat:"s" %}selected{% endif %}>
+                            {{ event.title }} - {{ event.date|date:"M d, Y" }}
+                        </option>
+                        {% empty %}
+                        <option value="">No upcoming events open for registration</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label d-block">Performance Type</label>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input"
+                            type="radio"
+                            name="performance_type"
+                            id="performance_type"
+                            value="solo"
+                            checked>
+                        <label class="form-check-label">
+                            Solo
+                        </label>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input"
+                            type="radio"
+                            name="performance_type"
+                            value="team">
+                        <label class="form-check-label">
+                            Team
+                        </label>
+                    </div>
+                </div>
+
+
+                <div class="mb-3 d-none" id="team-count-wrapper">
+                    <label for="team_count" class="form-label">Number of Students in Team (2 to 15)</label>
+                    <input type="number" class="form-control form-control-dark" id="team_count" name="team_count" min="2" max="15"  inputmode="numeric" value="2">
+                </div>
+
+                <div id="students-wrapper"></div>
+
+                <button type="submit" class="btn btn-warning w-100 fw-bold" {% if not events %}disabled{% endif %}>Submit Registration</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% if popup_message %}
+<div class="modal fade" id="registrationPopup" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-warning">
+            <div class="modal-header border-secondary">
+                <h2 class="modal-title h5">Event Registration</h2>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">{{ popup_message }}</div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{ popup_message|json_script:"registration-popup-message" }}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+   
+    const performanceType = () =>
+    document.querySelector('input[name="performance_type"]:checked');
+
+
+    const teamCountWrapper = document.getElementById('team-count-wrapper');
+    const teamCountInput = document.getElementById('team_count');
+    const studentsWrapper = document.getElementById('students-wrapper');
+
+    function studentCard(index) {
+        return `
+            <div class="border rounded p-3 mb-3">
+                <h3 class="h6 mb-3">Student ${index + 1}</h3>
+                <div class="mb-3">
+                    <label class="form-label">Full Name (as per certificate)</label>
+                    <input type="text" class="form-control form-control-dark" name="member_full_name" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Registration Number</label>
+                    <input type="text" class="form-control form-control-dark" name="member_registration_number" maxlength="12" minlength="12" required>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label">Batch Name</label>
+                    <input type="text" class="form-control form-control-dark" name="member_batch_name" required>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderStudents() {
+        const isTeam = performanceType().value === 'team';
+        let count = isTeam ? parseInt(teamCountInput.value || '0', 10) : 1;
+        if (isNaN(count)) count = isTeam ? 2 : 1;
+        if (isTeam && count < 2) count = 2;
+        if (isTeam && count > 15) count = 15;
+      
+
+
+        studentsWrapper.innerHTML = '';
+        for (let i = 0; i < count; i += 1) {
+            studentsWrapper.insertAdjacentHTML('beforeend', studentCard(i));
+        }
+    }
+
+    function toggleMode() {
+        const isTeam = performanceType().value === 'team';
+        teamCountWrapper.classList.toggle('d-none', !isTeam);
+        renderStudents();
+    }
+
+    
+    document.querySelectorAll(
+    'input[name="performance_type"]'
+        ).forEach(radio => {
+            radio.addEventListener('change', toggleMode);
+        });
+    teamCountInput.addEventListener('input', renderStudents);
+    toggleMode();
+});
+</script>
+{% if popup_message %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const popupElement = document.getElementById('registrationPopup');
+    const popupMessageElement = document.getElementById('registration-popup-message');
+    const popupMessage = popupMessageElement ? JSON.parse(popupMessageElement.textContent) : '';
+    const shouldRedirect = "{{ redirect_to_events|yesno:'true,false' }}" === "true";
+    const redirectUrl = "{% url 'events' %}";
+
+    function goToEvents() {
+        if (shouldRedirect) {
+            window.location.href = redirectUrl;
+        }
+    }
+
+    if (popupElement && window.bootstrap) {
+        const modal = new bootstrap.Modal(popupElement);
+        popupElement.addEventListener('hidden.bs.modal', goToEvents, { once: true });
+        modal.show();
+        setTimeout(function () {
+            modal.hide();
+        }, 1800);
+    } else if (popupMessage) {
+        window.alert(popupMessage);
+        goToEvents();
+    }
+});
+</script>
+{% endif %}
+{% endblock %}
+{% comment %} teamCountInput.value = isTeam ? count : 1;  line 108   if (isTeam && count > 15) count = 15;{% endcomment %} 

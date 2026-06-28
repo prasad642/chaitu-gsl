@@ -1,0 +1,31 @@
+{% load static %}
+
+<article class="prize-competition">
+    {% if competition.poster %}
+    <img src="{{ competition.poster.url }}" class="prize-competition-poster" alt="{{ competition.title }}">
+    {% else %}
+    <img src="{% static 'students/images/incend_logo.png' %}" class="prize-competition-poster" alt="{{ competition.title }}">
+    {% endif %}
+
+    <div class="prize-competition-details">
+        <h2>{{ competition.title }}</h2>
+        <p class="prize-announcement-date">
+            {{ competition.announcement_date|date:"d M Y" }}{% if competition.announcement_time %} at {{ competition.announcement_time|time:"h:i A" }}{% endif %}
+        </p>
+
+        <ul class="winner-list">
+            {% for winner in competition.winners.all %}
+            {% if winner.is_active %}
+            <li>
+                <strong>{{ winner.prize_label }}:</strong>
+                <span>{{ winner.winner_name }}</span>
+                {% if winner.batch_or_team %}<span>({{ winner.batch_or_team }})</span>{% endif %}
+                <em>{{ winner.get_winner_type_display }}</em>
+            </li>
+            {% endif %}
+            {% empty %}
+            <li class="empty-list">No winners added yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</article>

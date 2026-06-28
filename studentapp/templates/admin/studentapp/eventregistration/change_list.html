@@ -1,0 +1,72 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; {{ opts.verbose_name_plural|capfirst }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>Event Registrations</h1>
+
+    <div style="margin: 1rem 0;">
+        <strong>Events open for registration or already having saved registrations:</strong>
+        {% if allowed_events %}
+            <ul style="margin-top: 0.75rem;">
+                {% for event in allowed_events %}
+                    <li>
+                        <a href="?event_id={{ event.id }}">{{ event.title }}</a>
+                        ({{ event.date }})
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No events are currently allowed for registration.</p>
+        {% endif %}
+    </div>
+
+    {% if selected_event %}
+        <h2>Registrations for: {{ selected_event.title }}</h2>
+        <table id="result_list">
+            <thead>
+                <tr>
+                    <th scope="col">Serial Number</th>
+                    <th scope="col">Full Name</th>
+                    <th scope="col">Registration Number</th>
+                    <th scope="col">Batch Name</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in registration_rows %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ item.full_name }}</td>
+                        <td>{{ item.registration_number }}</td>
+                        <td>{{ item.batch_name }}</td>
+                        <td>
+                            {% if item.member_id %}
+                            <form method="post" style="margin: 0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="event_id" value="{{ selected_event.id }}">
+                                <input type="hidden" name="delete_member_id" value="{{ item.member_id }}">
+                                <button type="submit" class="button deletelink">Delete</button>
+                            </form>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">No registrations found for this event.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}

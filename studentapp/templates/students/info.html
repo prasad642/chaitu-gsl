@@ -1,0 +1,155 @@
+{% extends 'students/base.html' %}
+{% load static %}
+
+{% block title %}Incendios | Information{% endblock %}
+
+{% block content %}
+<section class="info-page">
+    <div class="container page-container">
+        <div class="page-heading">
+            <h1>Information Center</h1>
+            <p>Latest information and important updates.</p>
+        </div>
+
+        <div class="text-center">
+            <h3 class="latest-title">Latest Updates</h3>
+
+            <div class="latest-updates-board">
+                <div id="latestUpdatesCarousel" class="carousel slide latest-photo-carousel" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for update in latest_update_photos %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <img src="{{ update.image.url }}" class="latest-update-image" alt="{{ update.title }}">
+                        </div>
+                        {% empty %}
+                        <div class="carousel-item active">
+                            <img src="{% static 'students/images/incend_logo.png' %}" class="latest-update-image"
+                                alt="Incendios">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#latestUpdatesCarousel"
+                        data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#latestUpdatesCarousel"
+                        data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+
+                <div class="latest-updates-container my-4" aria-label="Latest update descriptions">
+                    <style>
+                        .headline-box {
+                            background-color: #212529; /* Bootstrap bg-dark */
+                            border: 1px solid #ffc107; /* Bootstrap border-warning */
+                            border-radius: 0.375rem;   /* Bootstrap rounded */
+                            margin-bottom: 0.75rem;
+                            padding: 0.5rem 1rem;
+                        }
+                        .marquee-wrapper {
+                            overflow: hidden;
+                            user-select: none;
+                            width: 100%;
+                            white-space: nowrap;
+                            position: relative;
+                        }
+                        .marquee-track {
+                            display: inline-block;
+                            position: relative;
+                            animation: scroll-marquee 25s linear infinite;
+                        }
+                        .marquee-wrapper:hover .marquee-track {
+                            animation-play-state: paused;
+                        }
+                        @keyframes scroll-marquee {
+                            0% {
+                                left: 100%;
+                                transform: translateX(0);
+                            }
+                            100% {
+                                left: 0;
+                                transform: translateX(-100%);
+                            }
+                        }
+                        .marquee-item {
+                            display: inline-block;
+                            font-size: 1.05rem;
+                        }
+                    </style>
+                    <div class="headlines-list">
+                        {% for update in latest_updates %}
+                        <div class="headline-box text-white shadow-sm">
+                            <div class="marquee-wrapper">
+                                <div class="marquee-track">
+                                    <span class="marquee-item"><strong>{{ update.title }}:</strong>&nbsp;<span class="ms-1">{{ update.content }}</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="headline-box text-white shadow-sm">
+                            <div class="marquee-wrapper">
+                                <div class="marquee-track">
+                                    <span class="marquee-item"><strong>No latest updates:</strong>&nbsp;<span class="ms-1">Updates added from the admin panel will appear here.</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row g-4 mb-lg-5 pb-lg-5">
+            {% for section in info_sections %}
+            <div class="col-lg-4 col-md-6">
+                <article class="info-box">
+                    <header class="info-box-header info-banner-header">
+                        <img src="{% static 'students/images/' %}{{ section.banner }}" alt="{{ section.title }}">
+                    </header>
+
+                    <div class="info-scroll">
+                        {% if section.category %}
+                        {% for update in section.category.updates.all %}
+                        {% if update.is_active %}
+                        <article class="info-card">
+                            <h3>{{ update.title }}</h3>
+                            {% if update.date %}<p class="event-date">{{ update.date|date:"M d, Y" }}</p>{% endif %}
+                            <p>{{ update.description }}</p>
+                            {% if update.external_url or update.pdf %}
+                            <div class="info-actions">
+                                {% if update.external_url %}
+                                <a class="info-action-link" href="{{ update.external_url }}" target="_blank"
+                                    rel="noopener noreferrer">
+                                    <i class="bi bi-box-arrow-up-right"></i>
+                                    Open Link
+                                </a>
+                                {% endif %}
+                                {% if update.pdf %}
+                                <a class="info-action-link" href="{{ update.pdf.url }}" target="_blank"
+                                    rel="noopener noreferrer">
+                                    <i class="bi bi-file-earmark-pdf"></i>
+                                    View PDF
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </article>
+                        {% endif %}
+                        {% empty %}
+                        <p class="empty-list">No updates added yet.</p>
+                        {% endfor %}
+                        {% else %}
+                        <p class="empty-list">No updates added yet.</p>
+                        {% endif %}
+                    </div>
+                </article>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'students/base.html' %}
+{% load static %}
+
+{% block title %}Incendios | Prizes{% endblock %}
+
+{% block content %}
+<section class="prizes-page">
+    <div class="container page-container prizes-container">
+        <header class="page-heading prizes-heading">
+            <h1>Event Prize Winners</h1>
+            <p>Congratulations to all our achievers. Latest winners are updated by the admin.</p>
+        </header>
+
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-4 col-md-6">
+                <article class="prize-box prize-cultural">
+                    <header class="prize-box-header">
+                        <img src="{% static 'students/images/cultural-prizes-banner.jpg' %}" alt="Cultural events">
+                    </header>
+
+                    <div class="prize-results-list">
+                        {% for competition in cultural_competitions %}
+                        {% include 'students/partials/prize_competition.html' with competition=competition %}
+                        {% empty %}
+                        <p class="empty-list">No cultural prize winners added yet.</p>
+                        {% endfor %}
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <article class="prize-box prize-scientific">
+                    <header class="prize-box-header">
+                        <img src="{% static 'students/images/scientific-prizes-banner.jpg' %}" alt="Scientific events">
+                    </header>
+
+                    <div class="prize-results-list">
+                        {% for competition in scientific_competitions %}
+                        {% include 'students/partials/prize_competition.html' with competition=competition %}
+                        {% empty %}
+                        <p class="empty-list">No scientific prize winners added yet.</p>
+                        {% endfor %}
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-lg-4 col-md-12">
+                <article class="prize-box prize-sports">
+                    <header class="prize-box-header">
+                        <img src="{% static 'students/images/sports-prizes-banner.jpg' %}" alt="Sports events">
+                    </header>
+
+                    <div class="prize-results-list">
+                        {% for competition in sports_competitions %}
+                        {% include 'students/partials/prize_competition.html' with competition=competition %}
+                        {% empty %}
+                        <p class="empty-list">No sports prize winners added yet.</p>
+                        {% endfor %}
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

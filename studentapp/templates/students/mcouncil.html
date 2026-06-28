@@ -1,0 +1,43 @@
+{% extends 'students/base.html' %}
+{% load static %}
+
+{% block title %}Incendios | Management Council{% endblock %}
+
+{% block content %}
+<section class="management-page">
+    <div class="container page-container">
+        <header class="page-heading">
+            <h1>Management Council</h1>
+            <p>Meet our management council members.</p>
+        </header>
+
+        {% if management_members %}
+        <div class="row g-4 justify-content-center">
+            {% for member in management_members %}
+            <div class="col-6 col-md-6 col-lg-5">
+                <article class="management-card">
+                    <div class="management-image-box">
+                        {% if member.image %}
+                        <img src="{{ member.image.url }}" alt="{{ member.name }}" class="management-image">
+                        {% else %}
+                        <img src="{% static 'students/images/incend_logo.png' %}" alt="{{ member.name }}" class="management-image">
+                        {% endif %}
+                    </div>
+
+                    <div class="management-content">
+                        <h2>{{ member.name }}</h2>
+                        <p class="management-position">{{ member.position }}</p>
+                        {% if member.bio %}<p>{{ member.bio }}</p>{% endif %}
+                    </div>
+                </article>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>Management council members will appear here after the admin adds them.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

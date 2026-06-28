@@ -1,0 +1,130 @@
+{% extends "students/base.html" %}
+{% load static %}
+
+{% block title %}Incendios | Clubs{% endblock %}
+
+{% block content %}
+<style>
+    @media (max-width: 767.98px) {
+        .club-card-image {
+            object-fit: contain !important;
+            height: 100% !important; /* Or auto, depending on wrap */
+            width: 100% !important;
+        }
+        .club-card-image-wrap {
+            /* If the wrapper was cropping it vertically, allow it to adjust */
+            height: auto !important;
+            min-height: 100px; /* Reduced sensible default for mobile */
+        }
+        .club-card {
+            min-height: auto !important; /* Remove the huge 390px default */
+        }
+        .club-card-body {
+            margin-top: -30px !important; /* Squeeze from below by shifting text up */
+            position: relative;
+            z-index: 2;
+            padding-bottom: 1rem !important; /* Less padding at bottom */
+        }
+        /* Restrict modal height and ensure scrolling on mobile */
+        .club-modal .modal-dialog {
+            align-items: center;
+        }
+        .club-modal .modal-content {
+            max-height: 75vh !important; /* Leave some space above and below */
+        }
+        .club-modal .modal-body {
+            overflow-y: auto !important; /* Add scroll bar for inner content */
+        }
+    }
+</style>
+<section class="clubs-page">
+    <div class="container page-container">
+        <header class="page-heading">
+            <h1>Student Clubs</h1>
+            <p>Explore the clubs shaping campus life at GSL.</p>
+        </header>
+
+        {% if clubs %}
+        <div class="row g-4 mb-lg-5 pb-lg-5">
+            {% for club in clubs %}
+            <div class="col-lg-4 col-md-6 col-6">
+                <button class="club-card club-card-button" type="button" style="--club-color: {{ club.color }};" data-bs-toggle="modal" data-bs-target="#clubModal{{ club.id }}">
+                    <div class="club-card-image-wrap">
+                        {% if club.image %}
+                        <img src="{{ club.image.url }}" class="club-card-image" alt="{{ club.name }}">
+                        {% else %}
+                        <img src="{% static 'students/images/incend_logo.png' %}" class="club-card-image" alt="{{ club.name }}">
+                        {% endif %}
+                    </div>
+
+                    <div class="club-card-body">
+                        <span class="club-color-chip"></span>
+                        <h2>{{ club.name }}</h2>
+                        {% if club.guide %}<p class="club-detail"><strong>Guide:</strong> {{ club.guide }}</p>{% endif %}
+                        <span class="club-open-hint">View details</span>
+                    </div>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% for club in clubs %}
+        <div class="modal fade club-modal" id="clubModal{{ club.id }}" tabindex="-1" aria-labelledby="clubModal{{ club.id }}Label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                <div class="modal-content" style="--club-color: {{ club.color }};">
+                    <div class="modal-header">
+                        <div>
+                            <span class="club-color-chip"></span>
+                            <h2 class="modal-title" id="clubModal{{ club.id }}Label">{{ club.name }}</h2>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <dl class="club-detail-list">
+                            <div>
+                                <dt>Founder</dt>
+                                <dd>{{ club.founder }}</dd>
+                            </div>
+                            {% if club.guide %}
+                            <div>
+                                <dt>Guide</dt>
+                                <dd>{{ club.guide }}</dd>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <dt>Started</dt>
+                                <dd>{{ club.starting_date|date:"M d, Y" }}</dd>
+                            </div>
+                        </dl>
+                        {% if club.description %}
+                        <div class="club-detail-block">
+                            <strong>Description</strong>
+                            <p>{{ club.description|linebreaksbr }}</p>
+                        </div>
+                        {% endif %}
+                        {% if club.foundation_members %}
+                        <div class="club-detail-block">
+                            <strong>Foundation Members</strong>
+                            <p>{{ club.foundation_members|linebreaksbr }}</p>
+                        </div>
+                        {% endif %}
+                        {% if club.rules_and_regulations %}
+                        <div class="club-detail-block">
+                            <strong>Rules &amp; Regulations</strong>
+                            <p>{{ club.rules_and_regulations|linebreaksbr }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <h1>No Clubs Yet</h1>
+            <p>Clubs will appear here after they are added from the admin panel.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

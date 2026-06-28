@@ -1,0 +1,87 @@
+{% extends 'students/base.html' %}
+{% load static %}
+
+{% block title %}Incendios | Home{% endblock %}
+
+{% block content %}
+<section class="home-page">
+    <div class="container page-container">
+        {% if top_slides %}
+        <div id="topCarousel" class="carousel slide home-carousel bordered-carousel" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                {% for slide in top_slides %}
+                <button type="button" data-bs-target="#topCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
+                {% endfor %}
+            </div>
+
+            <div class="carousel-inner">
+                {% for slide in top_slides %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <img src="{{ slide.image.url }}" class="carousel-image" alt="{{ slide.title|default:'Incendios slide' }}">
+                </div>
+                {% endfor %}
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#topCarousel" data-bs-slide="prev" aria-label="Previous slide">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#topCarousel" data-bs-slide="next" aria-label="Next slide">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+        {% endif %}
+
+        {% if features %}
+        <div class="feature-cards-section">
+            <div class="row g-4 justify-content-center">
+                {% for feature in features %}
+                <div class="col-lg-4 col-md-6 col-6">
+                    <article class="feature-card">
+                        <img src="{{ feature.image.url }}" class="feature-card-image" alt="{{ feature.name }}">
+                        <h2>{{ feature.name }}</h2>
+                        <p>{{ feature.caption }}</p>
+                    </article>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if second_carousel_images %}
+        <div id="bottomCarousel" class="carousel slide home-carousel" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                {% for image in second_carousel_images %}
+                <button type="button" data-bs-target="#bottomCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-label="Gallery image {{ forloop.counter }}"></button>
+                {% endfor %}
+            </div>
+
+            <div class="carousel-inner">
+                {% for image in second_carousel_images %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    {% if image.is_static %}
+                    <img src="{% static image.url %}" class="carousel-image" alt="{{ image.title }}">
+                    {% else %}
+                    <img src="{{ image.url }}" class="carousel-image" alt="{{ image.title }}">
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#bottomCarousel" data-bs-slide="prev" aria-label="Previous gallery image">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#bottomCarousel" data-bs-slide="next" aria-label="Next gallery image">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+        {% endif %}
+
+        {% if not top_slides and not features and not second_carousel_images %}
+        <div class="empty-state">
+            <h1>INCENDIOS</h1>
+            <p>Homepage content will appear here after the admin adds slides, feature cards, or gallery images.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

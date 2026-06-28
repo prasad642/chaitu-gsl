@@ -1,0 +1,10 @@
+Django==6.0.6
+Pillow==12.2.0
+asgiref==3.11.1
+sqlparse==0.5.5
+tzdata==2026.2
+django-bootstrap5==25.3
+openpyxl==3.1.5
+gunicorn>=23,<24
+whitenoise>=6,<7
+PyMySQL>=1.1,<2
