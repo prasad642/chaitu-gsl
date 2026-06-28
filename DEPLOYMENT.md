@@ -13,8 +13,8 @@ Do not upload `env/`, `build/`, `dist/`, `__pycache__/`, `db.sqlite3`, or `stude
 ```text
 DEBUG=False
 SECRET_KEY=<generate-a-long-random-secret>
-ALLOWED_HOSTS=<your-domain-or-hostname>
-CSRF_TRUSTED_ORIGINS=https://<your-domain-or-hostname>
+ALLOWED_HOSTS=web-production-6b6b2.up.railway.app
+CSRF_TRUSTED_ORIGINS=https://web-production-6b6b2.up.railway.app
 EMAIL_HOST_USER=<gmail-sender-address>
 EMAIL_HOST_PASSWORD=<gmail-app-password>
 CONTACT_RECEIVER_EMAIL=<admin-receiver-address>
@@ -51,7 +51,7 @@ pip install -r requirements.txt && python manage.py collectstatic --noinput && p
 ## Start command
 
 ```bash
-gunicorn studentproject.wsgi:application
+gunicorn studentproject.wsgi:application --bind 0.0.0.0:$PORT
 ```
 
 The `Procfile` already contains this start command for platforms that detect it automatically.

@@ -27,15 +27,36 @@ SECRET_KEY = os.environ.get(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ["web-production-6b6b2.up.railway.app",
-    "localhost",
-    "127.0.0.1",
-    # host.strip()
-    # for host in os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
-    # if host.strip()
-]
+RAILWAY_HOST = 'web-production-6b6b2.up.railway.app'
+
+
+def split_env_list(name, default=''):
+    return [
+        value.strip()
+        for value in os.environ.get(name, default).split(',')
+        if value.strip()
+    ]
+
+
+ALLOWED_HOSTS = split_env_list(
+    'ALLOWED_HOSTS',
+    f'{RAILWAY_HOST},localhost,127.0.0.1',
+)
+
+railway_public_domain = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '').strip()
+if railway_public_domain and railway_public_domain not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(railway_public_domain)
+
+CSRF_TRUSTED_ORIGINS = split_env_list(
+    'CSRF_TRUSTED_ORIGINS',
+    f'https://{RAILWAY_HOST}',
+)
+if railway_public_domain:
+    railway_origin = f'https://{railway_public_domain}'
+    if railway_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(railway_origin)
 
 
 # Application definition
@@ -170,19 +191,27 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 CONTACT_RECEIVER_EMAIL = os.environ.get('CONTACT_RECEIVER_EMAIL', 'incendios2k22gsl@gmail.com')
 
 try:
-    from .email_settings import *  # noqa: F401,F403
+    from . import email_settings
 except ImportError:
     pass
+else:
+    EMAIL_HOST_USER = getattr(email_settings, 'EMAIL_HOST_USER', EMAIL_HOST_USER)
+    EMAIL_HOST_PASSWORD = getattr(
+        email_settings,
+        'EMAIL_HOST_PASSWORD',
+        EMAIL_HOST_PASSWORD,
+    )
+    CONTACT_RECEIVER_EMAIL = getattr(
+        email_settings,
+        'CONTACT_RECEIVER_EMAIL',
+        CONTACT_RECEIVER_EMAIL,
+    )
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
-    if origin.strip()
-]
+DEBUG = globals().get('DEBUG', os.environ.get('DEBUG', 'True').lower() == 'true')
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -195,8 +224,7 @@ if not DEBUG:
         'False',
     ).lower() == 'true'
     SECURE_HSTS_PRELOAD = os.environ.get('SECURE_HSTS_PRELOAD', 'False').lower() == 'true'
-DEBUG = False
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://web-production-6b6b2.up.railway.app",
-]
+
+
+
