@@ -51,7 +51,7 @@ pip install -r requirements.txt && python manage.py collectstatic --noinput && p
 ## Start command
 
 ```bash
-gunicorn studentproject.wsgi:application --bind 0.0.0.0:$PORT
+python manage.py migrate --noinput && gunicorn studentproject.wsgi:application --bind 0.0.0.0:$PORT
 ```
 
 The `Procfile` already contains this start command for platforms that detect it automatically.
