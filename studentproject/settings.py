@@ -106,6 +106,12 @@ WSGI_APPLICATION = 'studentproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+
+# import dj_database_url
+import os
+
+
+
 if os.environ.get('DB_ENGINE', '').lower() == 'mysql' or os.environ.get('MYSQL_DATABASE'):
     DATABASES = {
         'default': {
