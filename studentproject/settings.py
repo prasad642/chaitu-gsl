@@ -186,8 +186,18 @@ STATICFILES_DIRS = [
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 import cloudinary
-from dotenv import load_dotenv
-load_dotenv(BASE_DIR / ".env")
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / ".env")
+except ImportError:
+    pass
+
+
+
+
 
 import cloudinary
 
