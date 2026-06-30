@@ -283,30 +283,6 @@ def events(request):
             'events': sports_events,
         },
     ]
-
-    # for event in cultural_events + scientific_events + sports_events:
-    #     event.can_register = bool(event.allow_student_registration)
-
-    # event_sections = [
-    #     {
-    #         'title': 'CULTURAL EVENTS',
-    #         'subtitle': 'Explore Heritage & Arts',
-    #         'style': 'cultural-bg',
-    #         'events': cultural_events,
-    #     },
-    #     {
-    #         'title': 'SCIENTIFIC EVENTS',
-    #         'subtitle': 'Innovation & Science',
-    #         'style': 'scientific-bg',
-    #         'events': scientific_events,
-    #     },
-    #     {
-    #         'title': 'SPORTS EVENTS',
-    #         'subtitle': 'Engage In Physical Activities',
-    #         'style': 'sports-bg',
-    #         'events': sports_events,
-    #     },
-    # ]
                                         # -------------new table
     batches = Batch.objects.all()
     competitions = Competition.objects.all()
@@ -370,20 +346,6 @@ def events(request):
         'rankings': rankings,
     }
     return render(request, 'students/events.html', context)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
