@@ -183,7 +183,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'studentapp/static'),
 ]
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 import cloudinary
 
@@ -212,7 +211,9 @@ CLOUDINARY_STORAGE = {
     "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
     "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
 }
-
+print("Cloud Name:", os.getenv("CLOUDINARY_CLOUD_NAME"))
+print("API Key:", os.getenv("CLOUDINARY_API_KEY"))
+print("API Secret Exists:", bool(os.getenv("CLOUDINARY_API_SECRET")))
 
 
 
