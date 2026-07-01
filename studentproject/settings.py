@@ -239,7 +239,7 @@ CONTACT_RECEIVER_EMAIL = os.environ.get(
     'incendios2k22gsl@gmail.com'
 )
 
-EMAIL_TIMEOUT = 20
+EMAIL_TIMEOUT = 60
 
 try:
     from . import email_settings
