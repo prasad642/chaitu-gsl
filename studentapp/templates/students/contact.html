@@ -49,9 +49,9 @@
                 <div class="mb-3">
                     <label for="otp_email" class="form-label">Email address</label>
                     <div class="input-group">
-                        <input type="email" class="form-control form-control-dark" id="otp_email" name="email" value="{{ otp_email }}" placeholder="you@example.com" required autocomplete="off" {% if otp_verified %}readonly{% endif %}>
+                        <input type="email" class="form-control form-control-dark" id="otp_email" name="email" value="{{ otp_email }}" placeholder="you@example.com" required autocomplete="off" disabled {% if otp_verified %}readonly{% endif %}>
                         <button type="submit" class="btn btn-outline-warning" id="sendOtpButton" data-otp-sent="{% if otp_sent %}true{% else %}false{% endif %}" {% if otp_verified %}disabled{% endif %}>
-                            <span class="otp-button-text" disabled>Send OTP</span>
+                            <span class="otp-button-text" >Send OTP</span>
                         </button>
                     </div>
                     <p class="otp-timer" id="otpTimer" aria-live="polite"></p>
