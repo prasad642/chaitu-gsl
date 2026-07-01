@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.management.base import BaseCommand, CommandError
 from smtplib import SMTPAuthenticationError
+import socket
 
 
 class Command(BaseCommand):
@@ -44,5 +45,10 @@ class Command(BaseCommand):
                     'or switch EMAIL_HOST settings to an approved SMTP provider.'
                 ) from exc
             raise CommandError('SMTP login failed. Check EMAIL_HOST_USER and EMAIL_HOST_PASSWORD.') from exc
+        except (TimeoutError, socket.timeout) as exc:
+            raise CommandError(
+                'SMTP connection timed out. Check EMAIL_HOST, EMAIL_PORT, EMAIL_USE_TLS, '
+                'and whether your hosting provider can reach the SMTP server.'
+            ) from exc
 
         self.stdout.write(self.style.SUCCESS(f'Sent {sent_count} email(s) to {recipient}.'))

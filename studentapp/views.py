@@ -9,6 +9,7 @@ from django.utils import timezone
 from pathlib import Path
 from random import SystemRandom
 from smtplib import SMTPAuthenticationError, SMTPException
+import socket
 import time
 import re
 import secrets
@@ -207,6 +208,11 @@ def clear_contact_otp_session(request):
 
 def email_delivery_error_message(exc):
     message = str(exc)
+    if isinstance(exc, (TimeoutError, socket.timeout)):
+        return (
+            'Email could not be sent: SMTP connection timed out. '
+            'Check EMAIL_HOST, EMAIL_PORT, EMAIL_USE_TLS, and whether your hosting provider can reach the SMTP server.'
+        )
     if isinstance(exc, SMTPAuthenticationError):
         details = ''
         if len(exc.args) > 1:
