@@ -44,7 +44,10 @@ class Command(BaseCommand):
                     'Brevo rejected this server IP address. Add this server IP to Brevo authorized IPs, '
                     'or switch EMAIL_HOST settings to an approved SMTP provider.'
                 ) from exc
-            raise CommandError('SMTP login failed. Check EMAIL_HOST_USER and EMAIL_HOST_PASSWORD.') from exc
+            detail_text = details or str(exc)
+            raise CommandError(
+                f'SMTP login failed. Check EMAIL_HOST_USER and EMAIL_HOST_PASSWORD. {detail_text}'
+            ) from exc
         except (TimeoutError, socket.timeout) as exc:
             raise CommandError(
                 'SMTP connection timed out. Check EMAIL_HOST, EMAIL_PORT, EMAIL_USE_TLS, '

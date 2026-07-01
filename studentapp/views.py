@@ -222,7 +222,8 @@ def email_delivery_error_message(exc):
                 'Email could not be sent: Brevo rejected this server IP address. '
                 'Add this server IP to Brevo authorized IPs, or switch EMAIL_HOST settings to an approved SMTP provider.'
             )
-        return 'Email could not be sent: SMTP login failed. Please check EMAIL_HOST_USER and EMAIL_HOST_PASSWORD.'
+        detail_text = details or message
+        return f'Email could not be sent: SMTP login failed. Please check EMAIL_HOST_USER and EMAIL_HOST_PASSWORD. {detail_text}'
     if isinstance(exc, SMTPException):
         return f'Email could not be sent: SMTP error: {message}'
     return f'Email could not be sent: {message}'
