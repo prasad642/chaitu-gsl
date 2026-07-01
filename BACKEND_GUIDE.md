@@ -34,21 +34,28 @@ Use these admin sections:
 
 ## Email setup for OTP
 
-Create this file:
+Set these environment variables in `.env` for local development, or in your host dashboard for deployment:
 
 ```text
-C:\Users\durga\Downloads\chaitu_gsl\studentsproject\studentproject\studentproject\email_settings.py
+EMAIL_HOST=smtp-relay.brevo.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your-brevo-smtp-login
+EMAIL_HOST_PASSWORD=your-brevo-smtp-key
+CONTACT_RECEIVER_EMAIL=admin-receiver@gmail.com
 ```
 
-Use this format:
+The app uses Brevo SMTP by default. If email sending fails with `Unauthorized IP address`, open Brevo and authorize the server IP address that is sending mail, or switch these variables to another SMTP provider.
+
+You can also create `studentproject/email_settings.py` for local-only overrides:
 
 ```python
-EMAIL_HOST_USER = 'your-sender-gmail@gmail.com'
-EMAIL_HOST_PASSWORD = 'your-16-character-gmail-app-password'
+EMAIL_HOST_USER = 'your-brevo-smtp-login'
+EMAIL_HOST_PASSWORD = 'your-brevo-smtp-key'
 CONTACT_RECEIVER_EMAIL = 'admin-receiver@gmail.com'
 ```
 
-For Gmail, `EMAIL_HOST_PASSWORD` must be a Gmail app password, not your normal Gmail password.
+For Gmail, change `EMAIL_HOST` to `smtp.gmail.com`; `EMAIL_HOST_PASSWORD` must be a Gmail app password, not your normal Gmail password.
 
 Test email sending:
 

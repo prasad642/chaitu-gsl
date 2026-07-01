@@ -15,13 +15,18 @@ DEBUG=False
 SECRET_KEY=<generate-a-long-random-secret>
 ALLOWED_HOSTS=web-production-6b6b2.up.railway.app
 CSRF_TRUSTED_ORIGINS=https://web-production-6b6b2.up.railway.app
-EMAIL_HOST_USER=<gmail-sender-address>
-EMAIL_HOST_PASSWORD=<gmail-app-password>
+EMAIL_HOST=smtp-relay.brevo.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=<brevo-smtp-login>
+EMAIL_HOST_PASSWORD=<brevo-smtp-key>
 CONTACT_RECEIVER_EMAIL=<admin-receiver-address>
 ADMIN_USERNAME=<admin-login-username>
 ADMIN_PASSWORD=<admin-login-password>
 ADMIN_EMAIL=<admin-email-address>
 ```
+
+If Brevo returns `Unauthorized IP address`, authorize the deployed server IP in Brevo before OTP email can work.
 
 For MySQL, add these variables:
 

@@ -49,7 +49,7 @@
                 <div class="mb-3">
                     <label for="otp_email" class="form-label">Email address</label>
                     <div class="input-group">
-                        <input type="email" class="form-control form-control-dark" id="otp_email" name="email" value="{{ otp_email }}" placeholder="you@example.com" required autocomplete="off" disabled {% if otp_verified %}readonly{% endif %}>
+                        <input type="email" class="form-control form-control-dark" id="otp_email" name="email" value="{{ otp_email }}" placeholder="you@example.com" required autocomplete="off"  {% if otp_verified %}readonly{% endif %}>
                         <button type="submit" class="btn btn-outline-warning" id="sendOtpButton" data-otp-sent="{% if otp_sent %}true{% else %}false{% endif %}" {% if otp_verified %}disabled{% endif %}>
                             <span class="otp-button-text" >Send OTP</span>
                         </button>
@@ -65,7 +65,7 @@
                 <input type="hidden" name="email" value="{{ otp_email }}">
 
                 <div class="mb-3">
-                    <label for="otp" class="form-label" disabled>Enter OTP</label>
+                    <label for="otp" class="form-label">Enter OTP</label>
                     <div class="input-group">
                         <input type="text" class="form-control form-control-dark" id="otp" name="otp" placeholder="6-digit OTP" minlength="6" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" required autocomplete="off" {% if not otp_pending %}disabled{% endif %}>
                         <button type="submit" class="btn btn-outline-warning" id="verifyOtpButton" data-otp-pending="{% if otp_pending %}true{% else %}false{% endif %}" {% if not otp_pending %}disabled{% endif %}>

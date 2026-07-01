@@ -8,6 +8,7 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from pathlib import Path
 from random import SystemRandom
+from smtplib import SMTPAuthenticationError, SMTPException
 import time
 import re
 import secrets
@@ -183,12 +184,42 @@ def email_settings_error():
     if not settings.EMAIL_HOST_USER:
         missing.append('sender email')
     if not settings.EMAIL_HOST_PASSWORD:
-        missing.append('Gmail app password')
+        missing.append('SMTP password/API key')
 
     if not missing:
         return ''
 
     return 'Email is not configured: missing ' + ' and '.join(missing) + '.'
+
+
+def clear_contact_otp_session(request):
+    for key in [
+        'contact_otp',
+        'contact_otp_time',
+        'contact_otp_email',
+        'contact_name',
+        'contact_otp_verified',
+        'contact_otp_verified_at',
+    ]:
+        request.session.pop(key, None)
+    request.session.modified = True
+
+
+def email_delivery_error_message(exc):
+    message = str(exc)
+    if isinstance(exc, SMTPAuthenticationError):
+        details = ''
+        if len(exc.args) > 1:
+            details = exc.args[1].decode(errors='ignore') if isinstance(exc.args[1], bytes) else str(exc.args[1])
+        if 'Unauthorized IP address' in details or 'Unauthorized IP address' in message:
+            return (
+                'Email could not be sent: Brevo rejected this server IP address. '
+                'Add this server IP to Brevo authorized IPs, or switch EMAIL_HOST settings to an approved SMTP provider.'
+            )
+        return 'Email could not be sent: SMTP login failed. Please check EMAIL_HOST_USER and EMAIL_HOST_PASSWORD.'
+    if isinstance(exc, SMTPException):
+        return f'Email could not be sent: SMTP error: {message}'
+    return f'Email could not be sent: {message}'
 
 
 def home(request):
@@ -727,17 +758,6 @@ def contact(request):
         request.session['contact_otp_verified'] = False
         request.session.modified = True
 
-
-
-        from django.conf import settings
-
-        print("EMAIL_HOST:", settings.EMAIL_HOST)
-        print("EMAIL_PORT:", settings.EMAIL_PORT)
-        print("EMAIL_HOST_USER:", settings.EMAIL_HOST_USER)
-        print("EMAIL_USE_TLS:", settings.EMAIL_USE_TLS)
-        print("EMAIL_TIMEOUT:", settings.EMAIL_TIMEOUT)
-
-
         try:
             send_mail(
                 'Your Incendios contact OTP',
@@ -746,23 +766,17 @@ def contact(request):
                 [email],
                 fail_silently=False,
             )
-        # except Exception as exc:
-        #     error_message = f'Failed to send OTP: {exc}'
-        #     return render(request, 'students/contact.html', {
-        #         'error': error_message,
-        #         'popup_message': error_message,
-        #         'otp_email': email,
-        #         'contact_name': name,
-        #         'otp_verified': False,
-        #         'otp_pending': False,
-        #     })
-
-
         except Exception as exc:
-            import traceback
-            traceback.print_exc()
-            print("ERROR:", repr(exc))
-            raise
+            error_message = email_delivery_error_message(exc)
+            clear_contact_otp_session(request)
+            return render(request, 'students/contact.html', {
+                'error': error_message,
+                'popup_message': error_message,
+                'otp_email': email,
+                'contact_name': name,
+                'otp_verified': False,
+                'otp_pending': False,
+            })
 
 
         # PRG: flash then redirect — prevents refresh from re-sending the OTP email
