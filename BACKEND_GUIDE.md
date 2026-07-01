@@ -40,6 +40,7 @@ Set these environment variables in `.env` for local development, or in your host
 EMAIL_HOST=smtp-relay.brevo.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
+EMAIL_TIMEOUT=10
 EMAIL_HOST_USER=your-brevo-smtp-login
 EMAIL_HOST_PASSWORD=your-brevo-smtp-key
 CONTACT_RECEIVER_EMAIL=admin-receiver@gmail.com
