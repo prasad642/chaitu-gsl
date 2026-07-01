@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from smtplib import SMTPAuthenticationError
 import socket
 
-from studentapp.email_utils import send_app_email
+from studentapp.email_utils import EmailDeliveryError, send_app_email
 
 
 class Command(BaseCommand):
@@ -15,11 +15,16 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         recipient = options['recipient']
 
+        using_brevo_api = bool(getattr(settings, 'BREVO_API_KEY', ''))
         missing = []
-        if not settings.EMAIL_HOST_USER:
-            missing.append('EMAIL_HOST_USER')
-        if not settings.EMAIL_HOST_PASSWORD:
-            missing.append('EMAIL_HOST_PASSWORD')
+        if using_brevo_api:
+            if not getattr(settings, 'BREVO_SENDER_EMAIL', '') and not settings.DEFAULT_FROM_EMAIL:
+                missing.append('BREVO_SENDER_EMAIL')
+        else:
+            if not settings.EMAIL_HOST_USER:
+                missing.append('EMAIL_HOST_USER')
+            if not settings.EMAIL_HOST_PASSWORD:
+                missing.append('EMAIL_HOST_PASSWORD')
 
         if missing:
             raise CommandError(
@@ -52,5 +57,8 @@ class Command(BaseCommand):
                 'SMTP connection timed out. Check EMAIL_HOST, EMAIL_PORT, EMAIL_USE_TLS, '
                 'and whether your hosting provider can reach the SMTP server.'
             ) from exc
+        except EmailDeliveryError as exc:
+            raise CommandError(str(exc)) from exc
 
-        self.stdout.write(self.style.SUCCESS(f'Sent {sent_count} email(s) to {recipient}.'))
+        method = 'Brevo API' if using_brevo_api else 'SMTP'
+        self.stdout.write(self.style.SUCCESS(f'Sent {sent_count} email(s) to {recipient} using {method}.'))

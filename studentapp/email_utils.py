@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.mail import send_mail as django_send_mail
 import requests
+from requests import RequestException, Timeout
 
 
 class EmailDeliveryError(Exception):
@@ -34,16 +35,22 @@ def send_brevo_api_email(subject, message, recipients):
         'subject': subject,
         'textContent': message,
     }
-    response = requests.post(
-        'https://api.brevo.com/v3/smtp/email',
-        headers={
-            'accept': 'application/json',
-            'api-key': settings.BREVO_API_KEY,
-            'content-type': 'application/json',
-        },
-        json=payload,
-        timeout=getattr(settings, 'EMAIL_TIMEOUT', 25),
-    )
+    try:
+        response = requests.post(
+            'https://api.brevo.com/v3/smtp/email',
+            headers={
+                'accept': 'application/json',
+                'api-key': settings.BREVO_API_KEY,
+                'content-type': 'application/json',
+            },
+            json=payload,
+            timeout=getattr(settings, 'EMAIL_TIMEOUT', 25),
+        )
+    except Timeout as exc:
+        raise EmailDeliveryError('Brevo API request timed out. Check Railway outbound HTTPS access and try again.') from exc
+    except RequestException as exc:
+        raise EmailDeliveryError(f'Brevo API request failed: {exc}') from exc
+
     if response.status_code >= 400:
         raise EmailDeliveryError(f'Brevo API error {response.status_code}: {response.text}')
 
