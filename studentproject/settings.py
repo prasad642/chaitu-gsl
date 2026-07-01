@@ -236,10 +236,10 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
 CONTACT_RECEIVER_EMAIL = os.environ.get(
     'CONTACT_RECEIVER_EMAIL',
-    ''
+    'incendios2k22gsl@gmail.com'
 )
 
-EMAIL_TIMEOUT = 10
+EMAIL_TIMEOUT = 20
 
 try:
     from . import email_settings

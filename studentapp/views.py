@@ -727,6 +727,17 @@ def contact(request):
         request.session['contact_otp_verified'] = False
         request.session.modified = True
 
+
+
+        from django.conf import settings
+
+        print("EMAIL_HOST:", settings.EMAIL_HOST)
+        print("EMAIL_PORT:", settings.EMAIL_PORT)
+        print("EMAIL_HOST_USER:", settings.EMAIL_HOST_USER)
+        print("EMAIL_USE_TLS:", settings.EMAIL_USE_TLS)
+        print("EMAIL_TIMEOUT:", settings.EMAIL_TIMEOUT)
+
+
         try:
             send_mail(
                 'Your Incendios contact OTP',
@@ -735,16 +746,24 @@ def contact(request):
                 [email],
                 fail_silently=False,
             )
+        # except Exception as exc:
+        #     error_message = f'Failed to send OTP: {exc}'
+        #     return render(request, 'students/contact.html', {
+        #         'error': error_message,
+        #         'popup_message': error_message,
+        #         'otp_email': email,
+        #         'contact_name': name,
+        #         'otp_verified': False,
+        #         'otp_pending': False,
+        #     })
+
+
         except Exception as exc:
-            error_message = f'Failed to send OTP: {exc}'
-            return render(request, 'students/contact.html', {
-                'error': error_message,
-                'popup_message': error_message,
-                'otp_email': email,
-                'contact_name': name,
-                'otp_verified': False,
-                'otp_pending': False,
-            })
+            import traceback
+            traceback.print_exc()
+            print("ERROR:", repr(exc))
+            raise
+
 
         # PRG: flash then redirect — prevents refresh from re-sending the OTP email
         request.session['contact_flash'] = {'type': 'otp_sent', 'popup': 'OTP sent successfully', 'at': time.time()}
