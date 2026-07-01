@@ -915,3 +915,14 @@ def contact(request):
     request.session.modified = True
     return redirect('contact')
 
+
+
+import socket
+from django.http import HttpResponse
+
+def smtp_test(request):
+    try:
+        socket.create_connection(("smtp-relay.brevo.com", 587), timeout=10)
+        return HttpResponse("SMTP reachable")
+    except Exception as e:
+        return HttpResponse(str(e))

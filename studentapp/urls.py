@@ -13,4 +13,5 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('clubs/',views.clubs,name='clubs'),
     path('export-excel/', views.export_excel, name='export_excel'),
+    path("smtp-test/", views.smtp_test, name="smtp_test"),
 ]
