@@ -21,13 +21,18 @@ EMAIL_USE_TLS=True
 EMAIL_TIMEOUT=25
 EMAIL_HOST_USER=<brevo-smtp-login>
 EMAIL_HOST_PASSWORD=<brevo-smtp-key>
+BREVO_API_KEY=<brevo-api-key>
+BREVO_SENDER_EMAIL=<verified-sender-email>
+BREVO_SENDER_NAME=Incendios
 CONTACT_RECEIVER_EMAIL=<admin-receiver-address>
 ADMIN_USERNAME=<admin-login-username>
 ADMIN_PASSWORD=<admin-login-password>
 ADMIN_EMAIL=<admin-email-address>
 ```
 
-If Brevo returns `Unauthorized IP address`, authorize the deployed server IP in Brevo before OTP email can work.
+Railway may block outbound SMTP port `587`. Set `BREVO_API_KEY` so the app sends mail through Brevo's HTTPS API instead of SMTP. `BREVO_SENDER_EMAIL` must be a sender verified in Brevo.
+
+If SMTP fallback returns `Unauthorized IP address`, authorize the deployed server IP in Brevo before SMTP email can work.
 
 For MySQL, add these variables:
 

@@ -233,6 +233,9 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
 
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '')
+BREVO_SENDER_EMAIL = os.environ.get('BREVO_SENDER_EMAIL', EMAIL_HOST_USER)
+BREVO_SENDER_NAME = os.environ.get('BREVO_SENDER_NAME', 'Incendios')
 
 CONTACT_RECEIVER_EMAIL = os.environ.get(
     'CONTACT_RECEIVER_EMAIL',
@@ -252,6 +255,9 @@ else:
         'EMAIL_HOST_PASSWORD',
         EMAIL_HOST_PASSWORD,
     )
+    BREVO_API_KEY = getattr(email_settings, 'BREVO_API_KEY', BREVO_API_KEY)
+    BREVO_SENDER_EMAIL = getattr(email_settings, 'BREVO_SENDER_EMAIL', BREVO_SENDER_EMAIL)
+    BREVO_SENDER_NAME = getattr(email_settings, 'BREVO_SENDER_NAME', BREVO_SENDER_NAME)
     CONTACT_RECEIVER_EMAIL = getattr(
         email_settings,
         'CONTACT_RECEIVER_EMAIL',

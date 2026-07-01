@@ -43,16 +43,22 @@ EMAIL_USE_TLS=True
 EMAIL_TIMEOUT=25
 EMAIL_HOST_USER=your-brevo-smtp-login
 EMAIL_HOST_PASSWORD=your-brevo-smtp-key
+BREVO_API_KEY=your-brevo-api-key
+BREVO_SENDER_EMAIL=your-verified-sender-email
+BREVO_SENDER_NAME=Incendios
 CONTACT_RECEIVER_EMAIL=admin-receiver@gmail.com
 ```
 
-The app uses Brevo SMTP by default. If email sending fails with `Unauthorized IP address`, open Brevo and authorize the server IP address that is sending mail, or switch these variables to another SMTP provider.
+The app uses Brevo's HTTPS API when `BREVO_API_KEY` is set, which avoids hosting providers that block SMTP port `587`. Without `BREVO_API_KEY`, it falls back to SMTP. If SMTP fails with `Unauthorized IP address`, open Brevo and authorize the server IP address that is sending mail, or switch these variables to another SMTP provider.
 
 You can also create `studentproject/email_settings.py` for local-only overrides:
 
 ```python
 EMAIL_HOST_USER = 'your-brevo-smtp-login'
 EMAIL_HOST_PASSWORD = 'your-brevo-smtp-key'
+BREVO_API_KEY = 'your-brevo-api-key'
+BREVO_SENDER_EMAIL = 'your-verified-sender-email'
+BREVO_SENDER_NAME = 'Incendios'
 CONTACT_RECEIVER_EMAIL = 'admin-receiver@gmail.com'
 ```
 

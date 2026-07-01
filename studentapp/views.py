@@ -2,7 +2,6 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.db import transaction
 from django.core.exceptions import ValidationError
-from django.core.mail import send_mail
 from django.core.validators import validate_email
 from django.shortcuts import redirect, render
 from django.utils import timezone
@@ -29,6 +28,7 @@ from .models import (
     Update,
     EventPhoto,
 )
+from .email_utils import send_app_email
 
 
 
@@ -766,12 +766,10 @@ def contact(request):
         request.session.modified = True
 
         try:
-            send_mail(
+            send_app_email(
                 'Your Incendios contact OTP',
                 f'Your OTP is {generated_otp}. Use this code to submit your message.',
-                settings.EMAIL_HOST_USER,
                 [email],
-                fail_silently=False,
             )
         except Exception as exc:
             error_message = email_delivery_error_message(exc)
@@ -914,12 +912,10 @@ def contact(request):
     full_message = f"Name: {use_name or 'Not provided'}\nEmail: {email}\nMessage:\n{message}"
 
     try:
-        send_mail(
+        send_app_email(
             subject,
             full_message,
-            settings.EMAIL_HOST_USER,
             [settings.CONTACT_RECEIVER_EMAIL],
-            fail_silently=False,
         )
         request.session['contact_flash'] = {
             'type': 'submitted',

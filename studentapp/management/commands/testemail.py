@@ -1,8 +1,9 @@
 from django.conf import settings
-from django.core.mail import send_mail
 from django.core.management.base import BaseCommand, CommandError
 from smtplib import SMTPAuthenticationError
 import socket
+
+from studentapp.email_utils import send_app_email
 
 
 class Command(BaseCommand):
@@ -28,12 +29,10 @@ class Command(BaseCommand):
             )
 
         try:
-            sent_count = send_mail(
+            sent_count = send_app_email(
                 'Incendios email test',
                 'If you received this, Django email sending is working.',
-                settings.EMAIL_HOST_USER,
                 [recipient],
-                fail_silently=False,
             )
         except SMTPAuthenticationError as exc:
             details = ''
