@@ -12,6 +12,7 @@ class Command(BaseCommand):
         self.stdout.write(f"method={'Brevo API' if has_api_key else 'SMTP'}")
         self.stdout.write(f"brevo_api_key_set={has_api_key}")
         self.stdout.write(f"brevo_sender_email_set={bool(sender_email)}")
+        self.stdout.write(f"brevo_sender_email={sender_email or '(missing)'}")
         self.stdout.write(f"email_host={settings.EMAIL_HOST}")
         self.stdout.write(f"email_port={settings.EMAIL_PORT}")
         self.stdout.write(f"email_use_tls={settings.EMAIL_USE_TLS}")
