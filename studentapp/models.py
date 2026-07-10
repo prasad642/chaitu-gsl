@@ -28,7 +28,6 @@ class TimeStampedModel(models.Model):
     class Meta:
         abstract = True
 
-
 class HomeSlide(TimeStampedModel):
     title = models.CharField(max_length=120, blank=True)
     image = models.ImageField(upload_to='home/slides/')

@@ -194,9 +194,6 @@ except ImportError:
     pass
 
 
-
-
-
 import cloudinary
 
 cloudinary.config(
