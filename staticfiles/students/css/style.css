@@ -208,7 +208,7 @@ a {
 }
 
 /* Center on larger screens where it fits, fall back to flex-start on mobile to allow safe scrolling */
-@media (min-width: 992px) {
+@media (min-width: 768px) {
     .header-nav {
         justify-content: center;
     }
@@ -318,12 +318,13 @@ a {
     animation: preloaderFloat 2.4s ease-in-out infinite;
 }
 
-.preloader-gif {
-    width: 132px;
-    height: 132px;
+.preloader-img {
+    width: 140px;
+    height: 140px;
     border: 4px solid var(--brand-yellow);
     border-radius: 50%;
-    object-fit: cover;
+    background-color: white;
+    object-fit: scale-down;
     box-shadow: 0 0 26px rgba(255, 204, 0, 0.55);
 }
 
@@ -1324,7 +1325,7 @@ a {
 }
 
 .prize-box-header {
-    height: 82px;
+    height: auto;
     overflow: hidden;
     background: transparent;
     border-radius: 12px;
@@ -1333,9 +1334,9 @@ a {
 
 .prize-box-header img {
     width: 100%;
-    height: 100%;
+    height: auto;
     display: block;
-    object-fit: cover;
+    /* object-fit: cover; */
 }
 
 .prize-results-list {
@@ -1589,13 +1590,7 @@ a {
             #2c1f00,
             #ffb300
         );
-    /* background: linear-gradient(
-        135deg,
-        #000000 0%,
-        #1a1a1a 40%,
-        #b8860b 75%,
-        #ffd700 100%
-    ); */
+   
 }
 
 .contact-page {
