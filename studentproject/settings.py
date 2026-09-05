@@ -16,6 +16,13 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load .env FIRST — before any os.environ.get() calls for secrets.
+# Without this, EMAIL_HOST_USER/PASSWORD etc. would read as empty strings.
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / '.env')
+except ImportError:
+    pass
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -27,7 +34,7 @@ SECRET_KEY = os.environ.get(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'false'
 
 RAILWAY_HOST = 'gsl-incendios.up.railway.app'
 
@@ -174,7 +181,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -182,19 +190,13 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'studentapp/static'),
 ]
 
-
 import cloudinary
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-try:
-    from dotenv import load_dotenv
-    load_dotenv(BASE_DIR / ".env")
-except ImportError:
-    pass
+# NOTE: load_dotenv() is already called at the top of this file.
+# The duplicate block has been removed.
 
-
-import cloudinary
 
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -221,22 +223,25 @@ STORAGES = {
 
 WHITENOISE_ALLOW_ALL_ORIGINS = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend'
+)
 
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp-relay.brevo.com')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp-relay.brevo.com').strip()
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
 
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '')
-BREVO_SENDER_EMAIL = os.environ.get('BREVO_SENDER_EMAIL', EMAIL_HOST_USER)
-BREVO_SENDER_NAME = os.environ.get('BREVO_SENDER_NAME', 'Incendios')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '').strip()
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '').strip()
+BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '').strip()
+BREVO_SENDER_EMAIL = os.environ.get('BREVO_SENDER_EMAIL', '').strip()
+BREVO_SENDER_NAME = os.environ.get('BREVO_SENDER_NAME', 'Incendios').strip()
 
 CONTACT_RECEIVER_EMAIL = os.environ.get(
     'CONTACT_RECEIVER_EMAIL',
     'incendios2k22gsl@gmail.com'
-)
+).strip()
 
 EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', 25))
 
@@ -245,23 +250,34 @@ try:
 except ImportError:
     pass
 else:
-    EMAIL_HOST_USER = getattr(email_settings, 'EMAIL_HOST_USER', EMAIL_HOST_USER)
+    EMAIL_HOST = getattr(email_settings, 'EMAIL_HOST', EMAIL_HOST).strip()
+    EMAIL_PORT = int(getattr(email_settings, 'EMAIL_PORT', EMAIL_PORT))
+    EMAIL_USE_TLS = getattr(email_settings, 'EMAIL_USE_TLS', EMAIL_USE_TLS)
+    EMAIL_HOST_USER = getattr(email_settings, 'EMAIL_HOST_USER', EMAIL_HOST_USER).strip()
     EMAIL_HOST_PASSWORD = getattr(
         email_settings,
         'EMAIL_HOST_PASSWORD',
         EMAIL_HOST_PASSWORD,
-    )
-    BREVO_API_KEY = getattr(email_settings, 'BREVO_API_KEY', BREVO_API_KEY)
-    BREVO_SENDER_EMAIL = getattr(email_settings, 'BREVO_SENDER_EMAIL', BREVO_SENDER_EMAIL)
-    BREVO_SENDER_NAME = getattr(email_settings, 'BREVO_SENDER_NAME', BREVO_SENDER_NAME)
+    ).strip()
+    BREVO_API_KEY = getattr(email_settings, 'BREVO_API_KEY', BREVO_API_KEY).strip()
+    BREVO_SENDER_EMAIL = getattr(email_settings, 'BREVO_SENDER_EMAIL', BREVO_SENDER_EMAIL).strip()
+    BREVO_SENDER_NAME = getattr(email_settings, 'BREVO_SENDER_NAME', BREVO_SENDER_NAME).strip()
     CONTACT_RECEIVER_EMAIL = getattr(
         email_settings,
         'CONTACT_RECEIVER_EMAIL',
         CONTACT_RECEIVER_EMAIL,
-    )
+    ).strip()
 
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-SERVER_EMAIL = EMAIL_HOST_USER
+
+# Set DEFAULT_FROM_EMAIL to a valid mailbox (not the raw smtp-brevo login username)
+if BREVO_SENDER_EMAIL and not BREVO_SENDER_EMAIL.endswith('@smtp-brevo.com'):
+    DEFAULT_FROM_EMAIL = BREVO_SENDER_EMAIL
+elif EMAIL_HOST_USER and not EMAIL_HOST_USER.endswith('@smtp-brevo.com'):
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+else:
+    DEFAULT_FROM_EMAIL = CONTACT_RECEIVER_EMAIL
+
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DEBUG = globals().get('DEBUG', os.environ.get('DEBUG', 'True').lower() == 'true')

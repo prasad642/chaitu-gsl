@@ -13,13 +13,21 @@ class EmailDeliveryError(Exception):
 
 
 def send_app_email(subject, message, recipients):
+    # Print email and OTP directly to console in development mode for easy verification
+    if getattr(settings, 'DEBUG', False):
+        print(f"\n[EMAIL DISPATCH] To: {', '.join(recipients)} | Subject: {subject}\n{message}\n")
+
     if getattr(settings, 'BREVO_API_KEY', ''):
         return send_brevo_api_email(subject, message, recipients)
+
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', '')
+    if not from_email or from_email.endswith('@smtp-brevo.com'):
+        from_email = getattr(settings, 'BREVO_SENDER_EMAIL', '') or getattr(settings, 'CONTACT_RECEIVER_EMAIL', 'incendios2k22gsl@gmail.com')
 
     return django_send_mail(
         subject,
         message,
-        settings.DEFAULT_FROM_EMAIL,
+        from_email,
         recipients,
         fail_silently=False,
     )
@@ -27,13 +35,11 @@ def send_app_email(subject, message, recipients):
 
 def send_brevo_api_email(subject, message, recipients):
     sender_email = getattr(settings, 'BREVO_SENDER_EMAIL', '') or settings.DEFAULT_FROM_EMAIL
+    if not sender_email or sender_email.endswith('@smtp-brevo.com'):
+        sender_email = getattr(settings, 'CONTACT_RECEIVER_EMAIL', 'incendios2k22gsl@gmail.com')
+
     if not sender_email:
-        raise EmailDeliveryError('Brevo sender email is missing. Set BREVO_SENDER_EMAIL or EMAIL_HOST_USER.')
-    if sender_email.endswith('@smtp-brevo.com'):
-        raise EmailDeliveryError(
-            'Brevo sender email is invalid. Set BREVO_SENDER_EMAIL to a sender address verified in Brevo, '
-            'not the SMTP login address.'
-        )
+        raise EmailDeliveryError('Brevo sender email is missing. Set BREVO_SENDER_EMAIL or CONTACT_RECEIVER_EMAIL.')
 
     payload = {
         'sender': {
