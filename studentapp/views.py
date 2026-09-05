@@ -181,6 +181,11 @@ def is_valid_email(email):
 
 
 def email_settings_error():
+    if getattr(settings, 'BREVO_API_KEY', ''):
+        if not getattr(settings, 'BREVO_SENDER_EMAIL', '') and not getattr(settings, 'DEFAULT_FROM_EMAIL', ''):
+            return 'Email is not configured: missing BREVO_SENDER_EMAIL.'
+        return ''
+
     missing = []
     if not settings.EMAIL_HOST_USER:
         missing.append('sender email')
