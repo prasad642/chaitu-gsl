@@ -34,7 +34,7 @@ SECRET_KEY = os.environ.get(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'false'
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 RAILWAY_HOST = 'gsl-incendios.up.railway.app'
 
@@ -49,7 +49,7 @@ def split_env_list(name, default=''):
 
 ALLOWED_HOSTS = split_env_list(
     'ALLOWED_HOSTS',
-    f'{RAILWAY_HOST},localhost,127.0.0.1',
+    f'{RAILWAY_HOST},localhost,127.0.0.1,.railway.app,.up.railway.app,*',
 )
 
 railway_public_domain = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '').strip()
@@ -58,7 +58,7 @@ if railway_public_domain and railway_public_domain not in ALLOWED_HOSTS:
 
 CSRF_TRUSTED_ORIGINS = split_env_list(
     'CSRF_TRUSTED_ORIGINS',
-    f'https://{RAILWAY_HOST}',
+    f'https://{RAILWAY_HOST},https://*.railway.app,https://*.up.railway.app',
 )
 if railway_public_domain:
     railway_origin = f'https://{railway_public_domain}'
@@ -279,8 +279,6 @@ else:
 
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-DEBUG = globals().get('DEBUG', os.environ.get('DEBUG', 'True').lower() == 'true')
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
